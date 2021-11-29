@@ -4,8 +4,10 @@ import io from 'socket.io-client';
 
 let timeout;
 let socket= io.connect('http://192.168.0.31:5000');
+let rememberImg;
 
 socket.on('canvas-data',(data)=>{
+    console.log("Trying to execute canvas-data");
     let image = new Image();
     let canvas = document.getElementById('board');
     let ctx = canvas.getContext('2d')
@@ -13,7 +15,22 @@ socket.on('canvas-data',(data)=>{
         ctx.drawImage(image,0,0);
     }
     image.src = data;
+    rememberImg = data;
 })
+
+function restoreImg(){
+    if(rememberImg !== undefined)
+    {
+        let image = new Image();
+        let canvas = document.getElementById('board');
+        let ctx = canvas.getContext('2d')
+        image.onload = () => {
+            ctx.drawImage(image,0,0);
+        }
+        image.src = rememberImg;
+
+    }
+}
 
 function drawOnCanvas(color,size){
     //var canvas = document.querySelector('#board');
@@ -94,6 +111,7 @@ function drawOnCanvas(color,size){
         timeout = setTimeout(()=>{
             let base64ImageData= canvas.toDataURL('image/png');
             socket.emit('canvas-data', base64ImageData);
+            rememberImg = base64ImageData;
         },500)
     };
 
@@ -104,15 +122,28 @@ let Board = (props) => {
     let {color,size} = props;
     useEffect(()=>{
         drawOnCanvas(color,size);
-
+        restoreImg();
         
     });
+
+    /*useEffect(()=>{
+        console.log("Reload image")
+
+        restoreImg();
+
+        
+    });*/
+
+    
+
+    console.log("Board render!")
 
     return (
         <div className='sketch' id='sketch'>
             <canvas className='board' id='board'></canvas>
         </div>
     );
+
 }
 
 export default Board;

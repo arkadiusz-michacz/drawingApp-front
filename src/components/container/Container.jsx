@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Board from '../board/Board';
 import './style.css'
 
-let Container = (props) => {
+let Container = () => {
     
     let [color, setColor] = useState('#fff000');
     let [brushSize, setBrushSize] = useState('5');
